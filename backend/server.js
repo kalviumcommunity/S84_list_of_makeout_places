@@ -3,7 +3,7 @@ const app = express();
 const PORT = 3000;
 
 app.get("/", (req, res) => {
-    res.send("Project Loading...!");
+    res.send("Project Loading....!");
 });
 
 app.get("/ping", (req, res) => {
