@@ -98,3 +98,6 @@ API Protection:
 ✅ Covers Full-Stack Development: It includes frontend (React), backend (Node.js), database (MongoDB), and deployment.
 ✅ Hands-on Learning: Gain experience with API creation, database management, authentication, security, and deployment.
 ✅ Scalability: The project can be extended with additional features like Google Maps integration, image uploads, and real-time chat for meetup planning. 🗺📸💬
+
+
+deploy link -- https://asap-list-of-places-deploy.pages.dev/
