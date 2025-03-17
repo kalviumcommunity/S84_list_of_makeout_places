@@ -99,5 +99,9 @@ API Protection:
 ✅ Hands-on Learning: Gain experience with API creation, database management, authentication, security, and deployment.
 ✅ Scalability: The project can be extended with additional features like Google Maps integration, image uploads, and real-time chat for meetup planning. 🗺📸💬
 
+milestone_6
 
 deploy link -- https://asap-list-of-places-deploy.pages.dev/
+
+Render Deployment Link - https://s84-list-of-makeout-places.onrender.com
+main
