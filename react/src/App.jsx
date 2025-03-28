@@ -6,12 +6,11 @@ const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
   
-  // Temporary data
   const mockSpots = Array(6).fill().map((_, i) => ({
     id: i,
     title: `Romantic Spot ${i + 1}`,
     description: "A perfect secluded location for intimate moments",
-    image: `https://source.unsplash.com/random/800x600?love,${Date.now()}-${i}`
+    image: `https://source.unsplash.com/800x600/?romantic,spot,${i}`
   }));
 
   const categories = [
@@ -26,18 +25,15 @@ const App = () => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          entry.target.style.opacity = 1;
+          entry.target.classList.add("show");
         }
       });
     }, { threshold: 0.1 });
-
-    const cards = document.querySelectorAll('.spot-card');
+  
+    const cards = document.querySelectorAll(".spot-card");
     cards.forEach(card => observer.observe(card));
-    
-    return () => {
-      cards.forEach(card => observer.unobserve(card));
-      observer.disconnect();
-    };
+  
+    return () => observer.disconnect();
   }, []);
 
   return (
