@@ -14,11 +14,23 @@ module.exports = (client) => {
   });
 
   // POST a new spot
-  router.post("/spots", async (req, res) => {
+  // POST a new spot with validation
+   router.post("/spots", async (req, res) => {
     const { name, description } = req.body;
-    const result = await spotsCollection.insertOne({ name, description });
-    res.json(result);
+  
+    if (!name || !description) {
+      return res.status(400).json({ error: "Name and description are required." });
+    }
+  
+    try {
+      const result = await spotsCollection.insertOne({ name, description });
+      res.status(201).json(result);
+    } catch (error) {
+      console.error("Failed to insert spot:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
+  
 
   // PUT update a spot
   router.put("/spots/:id", async (req, res) => {
