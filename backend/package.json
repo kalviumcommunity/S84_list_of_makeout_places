@@ -1,10 +1,11 @@
 {
   "dependencies": {
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "express": "^4.21.2",
+    "mongodb": "^6.15.0",
     "mongoose": "^8.10.0",
     "nodemon": "^3.1.9",
-    "package.json": "^2.0.1"
+    "package.json": "^0.0.0"
   },
   "name": "s84_list_of_makeout_places",
   "version": "1.0.0",
