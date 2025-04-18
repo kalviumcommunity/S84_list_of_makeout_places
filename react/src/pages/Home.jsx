@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FaHeart, FaSearch, FaStar, FaMoon, FaSun, FaLeaf, FaEdit, FaTrash } from 'react-icons/fa';
+import {
+  FaHeart, FaSearch, FaStar, FaMoon, FaSun, FaLeaf,
+  FaEdit, FaTrash, FaUser
+} from 'react-icons/fa';
 import '../../styles/styles.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [spots, setSpots] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
   const navigate = useNavigate();
 
@@ -19,32 +24,43 @@ const Home = () => {
   ];
 
   useEffect(() => {
+    fetchUsers();
     fetchSpots();
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("show");
-        }
-      });
-    }, { threshold: 0.1 });
-
-    const cards = document.querySelectorAll(".spot-card");
-    cards.forEach(card => observer.observe(card));
-
-    return () => observer.disconnect();
   }, []);
 
-  const fetchSpots = () => {
-    axios.get("http://localhost:3000/api/spots")
-      .then((res) => setSpots(res.data))
-      .catch((err) => console.error("Error fetching spots:", err));
+  useEffect(() => {
+    fetchSpots();
+  }, [selectedUser]);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/api/users");
+      setUsers(res.data);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    }
   };
 
-  const handleDelete = (id) => {
-    axios.delete(`http://localhost:3000/api/spots/${id}`)
-      .then(() => setSpots(spots.filter((spot) => spot._id !== id)))
-      .catch((err) => console.error("Error deleting:", err));
+  const fetchSpots = async () => {
+    try {
+      const res = selectedUser
+        ? await axios.get(`http://localhost:3000/api/spots`, {
+            params: { userId: selectedUser }
+          })
+        : await axios.get("http://localhost:3000/api/spots");
+      setSpots(res.data);
+    } catch (err) {
+      console.error("Error fetching spots:", err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/spots/${id}`);
+      fetchSpots(); // Refresh the list after delete
+    } catch (err) {
+      console.error("Error deleting:", err);
+    }
   };
 
   const handleEdit = (id) => {
@@ -64,14 +80,27 @@ const Home = () => {
         </p>
       </header>
 
-      {/* Add New Spot Button */}
       <div style={{ textAlign: "center", margin: "20px 0" }}>
         <button className="add-btn" onClick={() => navigate("/add")}>
           ➕ Add New Spot
         </button>
       </div>
 
-      {/* Search Bar */}
+      <div className="filter-user" style={{ textAlign: "center", margin: "10px" }}>
+        <label htmlFor="userDropdown"><FaUser /> Filter by User:</label>
+        <select
+          id="userDropdown"
+          value={selectedUser}
+          onChange={(e) => setSelectedUser(e.target.value)}
+          style={{ marginLeft: "10px" }}
+        >
+          <option value="">All Users</option>
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>{user.name}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="search-container">
         <div className="search-wrapper">
           <FaSearch className="search-icon" />
@@ -85,7 +114,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Category Buttons */}
       <div className="category-container">
         {categories.map((category, index) => (
           <button
@@ -99,7 +127,6 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Spots Grid */}
       <div className="spots-grid">
         {filteredSpots.map((spot) => (
           <div key={spot._id} className="spot-card">

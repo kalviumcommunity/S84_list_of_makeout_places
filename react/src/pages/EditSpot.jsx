@@ -1,4 +1,3 @@
-// src/pages/EditSpot.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -15,6 +14,8 @@ const EditSpot = () => {
       const spot = res.data.find((s) => s._id === id);
       if (spot) {
         setForm({ name: spot.name, description: spot.description });
+      } else {
+        console.error("Spot not found with id:", id);
       }
     };
     fetchSpot();
@@ -26,8 +27,12 @@ const EditSpot = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.put(`http://localhost:3000/api/spots/${id}`, form);
-    navigate("/");
+    try {
+      await axios.put(`http://localhost:3000/api/spots/${id}`, form);
+      navigate("/");
+    } catch (err) {
+      console.error("Error updating spot:", err);
+    }
   };
 
   return (
