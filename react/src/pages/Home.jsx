@@ -18,26 +18,42 @@ const Home = () => {
     { name: "All Locations", icon: <FaHeart /> }
   ];
 
-  // Fetch spots from the backend
   useEffect(() => {
-    axios.get("http://localhost:3000/api/spots")
-      .then((response) => setSpots(response.data))
-      .catch((error) => console.error("Error fetching spots:", error));
+    fetchSpots();
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("show");
+        }
+      });
+    }, { threshold: 0.1 });
+
+    const cards = document.querySelectorAll(".spot-card");
+    cards.forEach(card => observer.observe(card));
+
+    return () => observer.disconnect();
   }, []);
 
-  // Delete a spot
-  const handleDelete = (id) => {
-    axios.delete(`http://localhost:3000/api/spots/${id}`)
-      .then(() => {
-        setSpots(spots.filter(spot => spot._id !== id)); // Remove the deleted spot from the list
-      })
-      .catch((error) => console.error("Error deleting spot:", error));
+  const fetchSpots = () => {
+    axios.get("http://localhost:3000/api/spots")
+      .then((res) => setSpots(res.data))
+      .catch((err) => console.error("Error fetching spots:", err));
   };
 
-  // Navigate to Edit page
+  const handleDelete = (id) => {
+    axios.delete(`http://localhost:3000/api/spots/${id}`)
+      .then(() => setSpots(spots.filter((spot) => spot._id !== id)))
+      .catch((err) => console.error("Error deleting:", err));
+  };
+
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
   };
+
+  const filteredSpots = spots.filter((spot) =>
+    spot.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="app">
@@ -48,6 +64,14 @@ const Home = () => {
         </p>
       </header>
 
+      {/* Add New Spot Button */}
+      <div style={{ textAlign: "center", margin: "20px 0" }}>
+        <button className="add-btn" onClick={() => navigate("/add")}>
+          ➕ Add New Spot
+        </button>
+      </div>
+
+      {/* Search Bar */}
       <div className="search-container">
         <div className="search-wrapper">
           <FaSearch className="search-icon" />
@@ -61,6 +85,7 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Category Buttons */}
       <div className="category-container">
         {categories.map((category, index) => (
           <button
@@ -74,8 +99,9 @@ const Home = () => {
         ))}
       </div>
 
+      {/* Spots Grid */}
       <div className="spots-grid">
-        {spots.filter(spot => spot.name.toLowerCase().includes(searchQuery.toLowerCase())).map(spot => (
+        {filteredSpots.map((spot) => (
           <div key={spot._id} className="spot-card">
             <div className="card-image-container">
               <img

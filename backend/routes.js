@@ -7,29 +7,32 @@ module.exports = (client) => {
   const db = client.db("asapdb"); // Change if you use a different db name
   const spotsCollection = db.collection("romanticSpots");
 
-  // GET all spots
   router.get("/spots", async (req, res) => {
-    const spots = await spotsCollection.find({}).toArray();
+    const userId = req.query.userId;
+    const filter = userId ? { created_by: userId } : {};
+    const spots = await spotsCollection.find(filter).toArray();
     res.json(spots);
   });
+  
+  
 
-  // POST a new spot
-  // POST a new spot with validation
-   router.post("/spots", async (req, res) => {
+ // POST a new spot with created_by
+ router.post("/spots", async (req, res) => {
     const { name, description } = req.body;
   
     if (!name || !description) {
-      return res.status(400).json({ error: "Name and description are required." });
+      return res.status(400).json({ error: "All fields are required" });
     }
   
-    try {
-      const result = await spotsCollection.insertOne({ name, description });
-      res.status(201).json(result);
-    } catch (error) {
-      console.error("Failed to insert spot:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
+    const result = await spotsCollection.insertOne({
+      name,
+      description,
+      image: `https://source.unsplash.com/random/800x600?romantic,spot,${Date.now()}`
+    });
+  
+    res.json(result);
   });
+  
   
 
   // PUT update a spot
