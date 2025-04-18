@@ -1,20 +1,14 @@
-// src/Home.jsx
 import React, { useState, useEffect } from 'react';
-import { FaHeart, FaSearch, FaStar, FaMoon, FaSun, FaLeaf } from 'react-icons/fa';
+import { FaHeart, FaSearch, FaStar, FaMoon, FaSun, FaLeaf, FaEdit, FaTrash } from 'react-icons/fa';
 import '../../styles/styles.css';
-
-
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [spots, setSpots] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
-
-  const mockSpots = Array(6).fill().map((_, i) => ({
-    id: i,
-    title: `Romantic Spot ${i + 1}`,
-    description: "A perfect secluded location for intimate moments",
-    image: `https://source.unsplash.com/800x600/?romantic,spot,${i}`
-  }));
+  const navigate = useNavigate();
 
   const categories = [
     { name: "Moonlit Spots", icon: <FaMoon /> },
@@ -24,20 +18,26 @@ const Home = () => {
     { name: "All Locations", icon: <FaHeart /> }
   ];
 
+  // Fetch spots from the backend
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("show");
-        }
-      });
-    }, { threshold: 0.1 });
-
-    const cards = document.querySelectorAll(".spot-card");
-    cards.forEach(card => observer.observe(card));
-
-    return () => observer.disconnect();
+    axios.get("http://localhost:3000/api/spots")
+      .then((response) => setSpots(response.data))
+      .catch((error) => console.error("Error fetching spots:", error));
   }, []);
+
+  // Delete a spot
+  const handleDelete = (id) => {
+    axios.delete(`http://localhost:3000/api/spots/${id}`)
+      .then(() => {
+        setSpots(spots.filter(spot => spot._id !== id)); // Remove the deleted spot from the list
+      })
+      .catch((error) => console.error("Error deleting spot:", error));
+  };
+
+  // Navigate to Edit page
+  const handleEdit = (id) => {
+    navigate(`/edit/${id}`);
+  };
 
   return (
     <div className="app">
@@ -75,16 +75,13 @@ const Home = () => {
       </div>
 
       <div className="spots-grid">
-        {mockSpots.map(spot => (
-          <div key={spot.id} className="spot-card">
+        {spots.filter(spot => spot.name.toLowerCase().includes(searchQuery.toLowerCase())).map(spot => (
+          <div key={spot._id} className="spot-card">
             <div className="card-image-container">
               <img
-                src={spot.image}
-                alt={spot.title}
+                src={spot.image || 'https://source.unsplash.com/random/800x600?nature'}
+                alt={spot.name}
                 className="card-image"
-                onError={(e) => {
-                  e.target.src = 'https://source.unsplash.com/random/800x600?nature';
-                }}
               />
               <div className="card-rating">
                 <FaHeart className="heart-icon" />
@@ -92,8 +89,12 @@ const Home = () => {
               </div>
             </div>
             <div className="card-content">
-              <h3 className="card-title">{spot.title}</h3>
+              <h3 className="card-title">{spot.name}</h3>
               <p className="card-description">{spot.description}</p>
+              <div className="card-actions">
+                <button onClick={() => handleEdit(spot._id)}><FaEdit /> Edit</button>
+                <button onClick={() => handleDelete(spot._id)}><FaTrash /> Delete</button>
+              </div>
             </div>
           </div>
         ))}
