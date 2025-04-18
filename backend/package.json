@@ -5,9 +5,11 @@
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "mongodb": "^6.15.0",
-    "mongoose": "^8.10.0",
+    "mongoose": "^8.13.2",
+    "mysql2": "^3.14.0",
     "nodemon": "^3.1.9",
     "package.json": "^0.0.0"
+    
   },
   "name": "s84_list_of_makeout_places",
   "version": "1.0.0",
@@ -16,8 +18,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
     "start": "nodemon server.js"
+    
+    
   },
   "keywords": [],
   "author": "",
   "license": "ISC"
+  
 }
