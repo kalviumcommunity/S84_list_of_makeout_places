@@ -3,7 +3,8 @@ const { MongoClient } = require("mongodb");
 const mysql = require("mysql2/promise");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const cookieParser = require("cookie-parser"); // ✅ new
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken"); // ✅ new
 
 dotenv.config();
 const app = express();
@@ -47,38 +48,53 @@ async function connectDatabases() {
 
 connectDatabases();
 
+// Generate JWT token
+function generateToken(username) {
+  return jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+}
+
+// Middleware to verify token
+function authenticateToken(req, res, next) {
+  const token = req.cookies.token;
+  if (!token) return res.status(403).json({ error: "Access denied. No token provided." });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: "Invalid token" });
+    req.user = user;
+    next();
+  });
+}
+
 app.get("/", (req, res) => {
   res.send(`Server running. MongoDB connected: ${dbConnected}`);
 });
 
-// ✅ AUTH ENDPOINTS (cookie-based)
-// Login: sets the username cookie
+// ✅ AUTH ENDPOINTS (JWT token-based authentication)
+// Login: sets the JWT token in a cookie
 app.post("/api/login", (req, res) => {
   const { username } = req.body;
   if (!username) return res.status(400).json({ error: "Username is required" });
 
-  res.cookie("username", username, {
+  const token = generateToken(username);
+
+  res.cookie("token", token, {
     httpOnly: true,
-    sameSite: "Lax"
+    sameSite: "Lax",
+    maxAge: 3600 * 1000 // 1 hour expiration
   });
 
   res.json({ message: "Logged in successfully", username });
 });
 
-// Logout: clears the username cookie
+// Logout: clears the JWT token cookie
 app.post("/api/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("token");
   res.json({ message: "Logged out successfully" });
 });
 
-// Check login status
-app.get("/api/me", (req, res) => {
-  const username = req.cookies.username;
-  if (username) {
-    res.json({ loggedIn: true, username });
-  } else {
-    res.json({ loggedIn: false });
-  }
+// Check login status (token-based)
+app.get("/api/me", authenticateToken, (req, res) => {
+  res.json({ loggedIn: true, username: req.user.username });
 });
 
 // ✅ MySQL routes
