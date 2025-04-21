@@ -1,0 +1,66 @@
+/* Hover zone at top for triggering nav */
+.navbar-hover-zone {
+    position: fixed;
+    top: 0;
+    height: 80px;
+    width: 100%;
+    z-index: 1000;
+  }
+  
+  /* Navbar container */
+  .navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    transition: top 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Animation classes */
+  .navbar.hide {
+    top: -100px;
+    opacity: 0;
+  }
+  
+  .navbar.show {
+    top: 0;
+    opacity: 1;
+  }
+  
+  .logo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ff5e8e;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .logo:hover {
+    transform: scale(1.1);
+  }
+  
+  .nav-links a {
+    color: white;
+    margin-left: 2rem;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .nav-links a:hover {
+    color: #ff4081;
+    transform: translateY(-2px);
+  }
+  
+
+
+
+
+  
