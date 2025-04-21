@@ -5,6 +5,8 @@ import AddSpot from './pages/AddSpot';
 import EditSpot from './pages/EditSpot';
 import Navbar from './components/Navbar';
 import HeroSection from './pages/Landing';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
 import './App.css';
 
 import Landing from './pages/Landing';
@@ -20,6 +22,8 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/add" element={<AddSpot />} />
           <Route path="/edit/:id" element={<EditSpot />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </div>
     </Router>
