@@ -3,13 +3,15 @@ const { MongoClient } = require("mongodb");
 const mysql = require("mysql2/promise");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const cookieParser = require("cookie-parser"); // ✅ new
 
 dotenv.config();
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true })); // ✅ allow cookies to be sent
 app.use(express.json());
+app.use(cookieParser()); // ✅ middleware to read cookies
 
 let dbConnected = false;
 let mysqlDB;
@@ -49,7 +51,37 @@ app.get("/", (req, res) => {
   res.send(`Server running. MongoDB connected: ${dbConnected}`);
 });
 
-// MySQL routes
+// ✅ AUTH ENDPOINTS (cookie-based)
+// Login: sets the username cookie
+app.post("/api/login", (req, res) => {
+  const { username } = req.body;
+  if (!username) return res.status(400).json({ error: "Username is required" });
+
+  res.cookie("username", username, {
+    httpOnly: true,
+    sameSite: "Lax"
+  });
+
+  res.json({ message: "Logged in successfully", username });
+});
+
+// Logout: clears the username cookie
+app.post("/api/logout", (req, res) => {
+  res.clearCookie("username");
+  res.json({ message: "Logged out successfully" });
+});
+
+// Check login status
+app.get("/api/me", (req, res) => {
+  const username = req.cookies.username;
+  if (username) {
+    res.json({ loggedIn: true, username });
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
+
+// ✅ MySQL routes
 app.get("/api/users", async (req, res) => {
   try {
     const [rows] = await mysqlDB.execute("SELECT * FROM user");
