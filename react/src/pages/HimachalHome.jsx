@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FaHeart, FaSearch, FaStar, FaMoon, FaSun, FaLeaf, FaEdit, FaTrash, FaUser } from 'react-icons/fa';
-import { Link } from 'react-router-dom'; // Import Link
-import '../styles/HimachalHome.css';
+import {
+  FaHeart, FaSearch, FaStar, FaMoon, FaSun, FaLeaf,
+  FaEdit, FaTrash, FaUser
+} from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import '../../styles/styles.css';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 const HimachalHome = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -12,7 +14,6 @@ const HimachalHome = () => {
   const [selectedUser, setSelectedUser] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
   const categories = [
@@ -26,11 +27,7 @@ const HimachalHome = () => {
   useEffect(() => {
     fetchUsers();
     fetchSpots();
-
-    const timer = setTimeout(() => {
-      setIsHeaderVisible(false);
-    }, 5000);
-
+    const timer = setTimeout(() => setIsHeaderVisible(false), 5000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -75,26 +72,23 @@ const HimachalHome = () => {
     navigate(`/edit/${id}`);
   };
 
-  const filteredSpots = spots.filter((spot) =>
-    spot.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const showHeader = isHeaderVisible || isHovered;
+  const filteredSpots = spots.filter((spot) => {
+    const matchesSearch = spot.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !activeCategory || activeCategory === "All Locations" || spot.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <div className="himachal-page">
+    <div className="app">
+      {/* HEADER */}
       <div
         className="header-wrapper"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={() => setIsHeaderVisible(true)}
+        onMouseLeave={() => setIsHeaderVisible(false)}
       >
-        <div className={`header ${showHeader ? 'show' : 'hide'}`}>
-          <h1 className="title">Himachal Campus Nooks 💘</h1>
-          <p className="tagline">
-            Discover hidden romantic gems across Himachal campus for unforgettable moments
-          </p>
-
-          {/* Navigation Links */}
+        <div className={`header ${isHeaderVisible ? 'fade-in' : 'fade-out'}`}>
+          <h1 className="title">Himachal Love Nooks 💘</h1>
+          <p className="tagline">Discover hidden romantic gems across Himachal campus for unforgettable moments</p>
           <div className="nav-links">
             <Link to="/">Home</Link>
             <Link to="/home">Explore</Link>
@@ -104,12 +98,14 @@ const HimachalHome = () => {
         </div>
       </div>
 
+      {/* ADD BUTTON */}
       <div style={{ textAlign: "center", margin: "20px 0" }}>
         <button className="add-btn" onClick={() => navigate("/add")}>
           ➕ Add New Spot
         </button>
       </div>
 
+      {/* FILTER BY USER */}
       <div className="filter-user" style={{ textAlign: "center", margin: "10px" }}>
         <label htmlFor="userDropdown"><FaUser /> Filter by User:</label>
         <select
@@ -125,6 +121,7 @@ const HimachalHome = () => {
         </select>
       </div>
 
+      {/* SEARCH BAR */}
       <div className="search-container">
         <div className="search-wrapper">
           <FaSearch className="search-icon" />
@@ -138,19 +135,22 @@ const HimachalHome = () => {
         </div>
       </div>
 
+      {/* CATEGORY BUTTONS */}
       <div className="category-container">
         {categories.map((category, index) => (
           <button
             key={index}
             className={`category-btn ${activeCategory === category.name ? 'active' : ''}`}
-            onClick={() => setActiveCategory(category.name)}
+            onClick={() =>
+              setActiveCategory(activeCategory === category.name ? null : category.name)
+            }
           >
-            {category.icon}
-            {category.name}
+            {category.icon} {category.name}
           </button>
         ))}
       </div>
 
+      {/* SPOT CARDS */}
       <div className="spots-grid">
         {filteredSpots.map((spot) => (
           <div key={spot._id} className="spot-card">

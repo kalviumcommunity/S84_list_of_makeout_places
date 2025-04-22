@@ -3,7 +3,7 @@ import {
   FaHeart, FaSearch, FaStar, FaMoon, FaSun, FaLeaf,
   FaEdit, FaTrash, FaUser
 } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom'; // Corrected Link usage
+import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/styles.css';
 import axios from 'axios';
 
@@ -14,7 +14,6 @@ const Home = () => {
   const [selectedUser, setSelectedUser] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
   const categories = [
@@ -28,11 +27,7 @@ const Home = () => {
   useEffect(() => {
     fetchUsers();
     fetchSpots();
-
-    const timer = setTimeout(() => {
-      setIsHeaderVisible(false);
-    }, 5000);
-
+    const timer = setTimeout(() => setIsHeaderVisible(false), 5000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -52,7 +47,7 @@ const Home = () => {
   const fetchSpots = async () => {
     try {
       const res = selectedUser
-        ? await axios.get(`http://localhost:3000/api/spots`, {
+        ? await axios.get("http://localhost:3000/api/spots", {
             params: { userId: selectedUser }
           })
         : await axios.get("http://localhost:3000/api/spots");
@@ -75,32 +70,29 @@ const Home = () => {
     navigate(`/edit/${id}`);
   };
 
-  const filteredSpots = spots.filter((spot) =>
-    spot.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const showHeader = isHeaderVisible || isHovered;
+  const filteredSpots = spots.filter((spot) => {
+    const matchesSearch = spot.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !activeCategory || activeCategory === "All Locations" || spot.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="app">
-      {/* HEADER & NAVBAR */}
+      {/* HEADER */}
       <div
         className="header-wrapper"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={() => setIsHeaderVisible(true)}
+        onMouseLeave={() => setIsHeaderVisible(false)}
       >
-        <div className={`header ${showHeader ? 'show' : 'hide'}`}>
+        <div className={`header ${isHeaderVisible ? 'fade-in' : 'fade-out'}`}>
           <h1 className="title">Rajpura Love Nooks 💘</h1>
-          <p className="tagline">
-            Discover hidden romantic gems across campus for unforgettable moments
-          </p>
-
+          <p className="tagline">Discover hidden romantic gems across campus for unforgettable moments</p>
           <div className="nav-links">
-                      <Link to="/">Home</Link>
-                      <Link to="/home">Explore</Link>
-                      <Link to="/add">Add Spot</Link>
-                      <Link to="/choose-campus">Choose Campus</Link>
-                    </div>
+            <Link to="/">Home</Link>
+            <Link to="/home">Explore</Link>
+            <Link to="/add">Add Spot</Link>
+            <Link to="/choose-campus">Choose Campus</Link>
+          </div>
         </div>
       </div>
 
@@ -147,10 +139,11 @@ const Home = () => {
           <button
             key={index}
             className={`category-btn ${activeCategory === category.name ? 'active' : ''}`}
-            onClick={() => setActiveCategory(category.name)}
+            onClick={() =>
+              setActiveCategory(activeCategory === category.name ? null : category.name)
+            }
           >
-            {category.icon}
-            {category.name}
+            {category.icon} {category.name}
           </button>
         ))}
       </div>
