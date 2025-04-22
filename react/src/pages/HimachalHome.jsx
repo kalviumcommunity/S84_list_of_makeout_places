@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FaHeart, FaSearch, FaStar, FaMoon, FaSun, FaLeaf,
-  FaEdit, FaTrash, FaUser
-} from 'react-icons/fa';
-import '../../styles/styles.css';
+import { FaHeart, FaSearch, FaStar, FaMoon, FaSun, FaLeaf, FaEdit, FaTrash, FaUser } from 'react-icons/fa';
+import { Link } from 'react-router-dom'; // Import Link
+import '../styles/HimachalHome.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const Home = () => {
+const HimachalHome = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [spots, setSpots] = useState([]);
   const [users, setUsers] = useState([]);
@@ -52,10 +50,12 @@ const Home = () => {
   const fetchSpots = async () => {
     try {
       const res = selectedUser
-        ? await axios.get(`http://localhost:3000/api/spots`, {
-            params: { userId: selectedUser }
+        ? await axios.get("http://localhost:3000/api/spots", {
+            params: { userId: selectedUser, campus: "himachal" }
           })
-        : await axios.get("http://localhost:3000/api/spots");
+        : await axios.get("http://localhost:3000/api/spots", {
+            params: { campus: "himachal" }
+          });
       setSpots(res.data);
     } catch (err) {
       console.error("Error fetching spots:", err);
@@ -65,7 +65,7 @@ const Home = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:3000/api/spots/${id}`);
-      fetchSpots(); // Refresh the list after delete
+      fetchSpots();
     } catch (err) {
       console.error("Error deleting:", err);
     }
@@ -82,19 +82,27 @@ const Home = () => {
   const showHeader = isHeaderVisible || isHovered;
 
   return (
-    <div className="app">
-     <div
-  className="header-wrapper"
-  onMouseEnter={() => setIsHovered(true)}
-  onMouseLeave={() => setIsHovered(false)}
->
-  <div className={`header ${showHeader ? 'show' : 'hide'}`}>
-    <h1 className="title">Campus Love Nooks 💘</h1>
-    <p className="tagline">
-      Discover hidden romantic gems across campus for unforgettable moments
-    </p>
-  </div>
-</div>
+    <div className="himachal-page">
+      <div
+        className="header-wrapper"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className={`header ${showHeader ? 'show' : 'hide'}`}>
+          <h1 className="title">Himachal Campus Nooks 💘</h1>
+          <p className="tagline">
+            Discover hidden romantic gems across Himachal campus for unforgettable moments
+          </p>
+
+          {/* Navigation Links */}
+          <div className="nav-links">
+            <Link to="/">Home</Link>
+            <Link to="/home">Explore</Link>
+            <Link to="/add">Add Spot</Link>
+            <Link to="/choose-campus">Choose Campus</Link>
+          </div>
+        </div>
+      </div>
 
       <div style={{ textAlign: "center", margin: "20px 0" }}>
         <button className="add-btn" onClick={() => navigate("/add")}>
@@ -172,4 +180,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HimachalHome;

@@ -36,6 +36,7 @@ function Navbar() {
             <Link to="/">Home</Link>
             <Link to="/home">Explore</Link>
             <Link to="/add">Add Spot</Link>
+            <Link to="/choose-campus">Choose Campus</Link>
           </div>
         </div>
       </div>
