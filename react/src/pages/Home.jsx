@@ -13,6 +13,8 @@ const Home = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
   const categories = [
@@ -26,6 +28,12 @@ const Home = () => {
   useEffect(() => {
     fetchUsers();
     fetchSpots();
+
+    const timer = setTimeout(() => {
+      setIsHeaderVisible(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -71,14 +79,22 @@ const Home = () => {
     spot.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const showHeader = isHeaderVisible || isHovered;
+
   return (
     <div className="app">
-      <header className="header">
-        <h1 className="title">Campus Love Nooks 💘</h1>
-        <p className="tagline">
-          Discover hidden romantic gems across campus for unforgettable moments
-        </p>
-      </header>
+     <div
+  className="header-wrapper"
+  onMouseEnter={() => setIsHovered(true)}
+  onMouseLeave={() => setIsHovered(false)}
+>
+  <div className={`header ${showHeader ? 'show' : 'hide'}`}>
+    <h1 className="title">Campus Love Nooks 💘</h1>
+    <p className="tagline">
+      Discover hidden romantic gems across campus for unforgettable moments
+    </p>
+  </div>
+</div>
 
       <div style={{ textAlign: "center", margin: "20px 0" }}>
         <button className="add-btn" onClick={() => navigate("/add")}>
@@ -152,13 +168,6 @@ const Home = () => {
           </div>
         ))}
       </div>
-
-      <footer className="footer">
-        <p>
-          🔒 All spots are verified for privacy & safety • 
-          🌙 Respect quiet hours and campus regulations
-        </p>
-      </footer>
     </div>
   );
 };
